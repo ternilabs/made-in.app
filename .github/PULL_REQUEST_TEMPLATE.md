@@ -22,6 +22,17 @@ to make the review faster. Incomplete PRs may be closed without review.
 <!-- Briefly describe what you'll host on this subdomain. One or two sentences
      is enough. This helps maintainers detect spam and ambiguous requests. -->
 
+## Preview
+
+<!-- Paste a screenshot or image URL showing the website hosted at this
+     subdomain. This helps maintainers verify the site is real and functional. -->
+
+![Preview](paste-screenshot-url-here)
+
+## Live URL
+
+- **URL:** `http://<your-subdomain>.made-in.app` (HTTPS may take a few minutes to provision)
+
 ## Type of change
 
 - [ ] New subdomain registration
