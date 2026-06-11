@@ -11,8 +11,7 @@ to make the review faster. Incomplete PRs may be closed without review.
 
 ## Acknowledgements
 
-- [ ] I own or control the target host (e.g. GitHub Pages repo, Vercel/Netlify
-      deployment) referenced in the `record` field of my JSON file.
+- [ ] I own or control the target host (e.g. GitHub Pages repo, Vercel/Netlify deployment) referenced in the `record` field of my JSON file.
 - [ ] I own the GitHub account listed in `owner.username`.
 - [ ] I have read and agree to the project's [Terms of Service](../TERMS_OF_SERVICE.md).
 - [ ] I have read [CONTRIBUTING.md](../CONTRIBUTING.md) and [docs/json-schema.md](../docs/json-schema.md).
