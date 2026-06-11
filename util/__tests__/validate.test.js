@@ -65,3 +65,80 @@ test('validateSubdomainName: rejects bad characters', () => {
   const r = validateSubdomainName('ali ce');
   assert.equal(r.ok, false);
 });
+
+import { validateRecord } from '../validate.js';
+
+test('validateRecord: accepts valid A record', () => {
+  const r = validateRecord({ A: '203.0.113.42' });
+  assert.equal(r.ok, true);
+});
+
+test('validateRecord: rejects invalid A IPv4', () => {
+  const r = validateRecord({ A: '999.0.0.1' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects A with hostname', () => {
+  const r = validateRecord({ A: 'example.com' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects record with no keys', () => {
+  const r = validateRecord({});
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects record with multiple keys', () => {
+  const r = validateRecord({ A: '1.2.3.4', CNAME: 'x' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects unknown record type', () => {
+  const r = validateRecord({ MX: '10 mail.example.com' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: accepts valid AAAA record', () => {
+  const r = validateRecord({ AAAA: '2001:db8::1' });
+  assert.equal(r.ok, true);
+});
+
+test('validateRecord: rejects invalid AAAA', () => {
+  const r = validateRecord({ AAAA: 'not::an::ip' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: accepts valid CNAME', () => {
+  const r = validateRecord({ CNAME: 'alice.github.io' });
+  assert.equal(r.ok, true);
+});
+
+test('validateRecord: rejects CNAME pointing to IP literal', () => {
+  const r = validateRecord({ CNAME: '1.2.3.4' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects CNAME with invalid hostname chars', () => {
+  const r = validateRecord({ CNAME: 'under_score.example' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects CNAME pointing to made-in.app', () => {
+  const r = validateRecord({ CNAME: 'made-in.app' });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: accepts valid TXT', () => {
+  const r = validateRecord({ TXT: 'saas-verify=abc123' });
+  assert.equal(r.ok, true);
+});
+
+test('validateRecord: rejects TXT over 255 chars', () => {
+  const r = validateRecord({ TXT: 'a'.repeat(256) });
+  assert.equal(r.ok, false);
+});
+
+test('validateRecord: rejects empty TXT', () => {
+  const r = validateRecord({ TXT: '' });
+  assert.equal(r.ok, false);
+});
