@@ -1,8 +1,8 @@
 # Default owners for everything in the repo.
-*       @made-in.app/maintainers
+* @mkgp-dev
 
 # Domain registrations require explicit maintainer review.
-/domains/    @made-in.app/maintainers
+/domains/ @mkgp-dev
 
 # Workflow changes require an extra maintainer review.
-/.github/workflows/    @made-in.app/maintainers
+/.github/workflows/ @mkgp-dev
