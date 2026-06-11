@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { validateSubdomainName, validateRecord, validateRegistration } from '../validate.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CLI = join(__dirname, '..', 'validate.js');
 
 test('validateSubdomainName: accepts a normal name', () => {
   assert.deepEqual(validateSubdomainName('alice'), { ok: true, errors: [] });
@@ -220,13 +226,6 @@ test('validateRegistration: rejects invalid owner email', () => {
   assert.equal(r.ok, false);
 });
 
-import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const CLI = join(__dirname, '..', 'validate.js');
-
 test('validate CLI: --file accepts a valid registration', () => {
   const path = join(__dirname, 'fixtures', 'valid.json');
   const out = execFileSync('node', [CLI, '--file', path], { encoding: 'utf8' });
@@ -234,11 +233,19 @@ test('validate CLI: --file accepts a valid registration', () => {
 });
 
 test('validate CLI: --file rejects an invalid registration', () => {
-  let exitCode = 0;
-  try {
+  assert.throws(() => {
     execFileSync('node', [CLI, '--file', join(__dirname, 'fixtures', 'invalid.json')], { encoding: 'utf8' });
-  } catch (err) {
-    exitCode = err.status;
-  }
-  assert.equal(exitCode, 1);
+  }, { status: 1 });
+});
+
+test('validate CLI: --file handles missing file', () => {
+  assert.throws(() => {
+    execFileSync('node', [CLI, '--file', join(__dirname, 'fixtures', 'nope.json')], { encoding: 'utf8' });
+  }, { status: 1 });
+});
+
+test('validate CLI: --file handles invalid JSON', () => {
+  assert.throws(() => {
+    execFileSync('node', [CLI, '--file', join(__dirname, 'fixtures', 'broken.json')], { encoding: 'utf8' });
+  }, { status: 1 });
 });

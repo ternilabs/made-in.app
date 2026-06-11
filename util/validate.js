@@ -1,5 +1,6 @@
 import { RESERVED } from './reserved-list.js';
 import { isIPv6 } from 'node:net';
+import { readFileSync } from 'node:fs';
 
 const NAME_RE = /^[a-z0-9-]+$/;
 const PURE_NUMERIC_RE = /^[0-9]+$/;
@@ -16,7 +17,7 @@ const HOSTNAME_RE = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-
 
 const MADE_IN_APP_RE = /(?:^|\.)made-in\.app$/;
 
-const GH_USER_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,38}[a-zA-Z0-9])?$/;
+const GH_USER_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
 const GH_REPO_RE = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -150,15 +151,12 @@ export function validateRegistration(json) {
   return { ok: errors.length === 0, errors };
 }
 
-import { readFileSync } from 'node:fs';
-
 function parseArgs(argv) {
   const args = {};
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--file' && i + 1 < argv.length) args.file = argv[++i];
-    else if (a === '--all') args.all = true;
-    else if (a === '--name' && i + 1 < argv.length) args.name = argv[++i];
+    if (a === '--name' && i + 1 < argv.length) args.name = argv[++i];
   }
   return args;
 }
@@ -166,18 +164,23 @@ function parseArgs(argv) {
 export function main(argv = process.argv) {
   const args = parseArgs(argv);
   if (args.file) {
-    const subdomain = args.file.split('/').pop().replace(/\.json$/, '');
-    const raw = readFileSync(args.file, 'utf8');
-    const json = JSON.parse(raw);
-    const nameResult = validateSubdomainName(subdomain);
-    const regResult = validateRegistration(json);
-    const errors = [...nameResult.errors, ...regResult.errors];
-    if (errors.length > 0) {
-      for (const e of errors) console.error(`- ${e}`);
+    try {
+      const subdomain = args.file.split('/').pop().replace(/\.json$/, '');
+      const raw = readFileSync(args.file, 'utf8');
+      const json = JSON.parse(raw);
+      const nameResult = validateSubdomainName(subdomain);
+      const regResult = validateRegistration(json);
+      const errors = [...nameResult.errors, ...regResult.errors];
+      if (errors.length > 0) {
+        for (const e of errors) console.error(`- ${e}`);
+        return 1;
+      }
+      console.log(`OK: ${subdomain}`);
+      return 0;
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
       return 1;
     }
-    console.log(`OK: ${subdomain}`);
-    return 0;
   }
   if (args.name) {
     const r = validateSubdomainName(args.name);
