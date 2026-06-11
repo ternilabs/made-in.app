@@ -1,0 +1,8 @@
+# Default owners for everything in the repo.
+*       @made-in.app/maintainers
+
+# Domain registrations require explicit maintainer review.
+/domains/    @made-in.app/maintainers
+
+# Workflow changes require an extra maintainer review.
+/.github/workflows/    @made-in.app/maintainers
