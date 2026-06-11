@@ -1,0 +1,11 @@
+{
+  "description": "A simple Weather App project submitted for The Odin Project course. ",
+  "repo": "https://github.com/mkgp-dev/forecast-me",
+  "owner": {
+    "username": "mkgp-dev",
+    "email": "contact@mkgpdev.xyz"
+  },
+  "record": {
+    "CNAME": "mkgp-dev.github.io"
+  }
+}
