@@ -1,3 +1,5 @@
+process.env.CF_API_TOKEN = 'test-token';
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -59,7 +61,7 @@ test('buildLookupRequest: builds correct GET request', () => {
 
 test('sendWithRetry: returns result on first success', async () => {
   let calls = 0;
-  const fakeFetch = async () => { calls++; return { ok: true, status: 200, json: async () => ({ result: { id: 'r1' } }) }; };
+  const fakeFetch = async () => { calls++; return { ok: true, status: 200, text: async () => JSON.stringify({ result: { id: 'r1' } }) }; };
   const r = await sendWithRetry({ method: 'GET', url: 'x', headers: {} }, { fetchImpl: fakeFetch, maxAttempts: 3, sleep: async () => {} });
   assert.equal(r.status, 200);
   assert.equal(calls, 1);
@@ -69,8 +71,8 @@ test('sendWithRetry: retries 5xx then succeeds', async () => {
   let calls = 0;
   const fakeFetch = async () => {
     calls++;
-    if (calls < 3) return { ok: false, status: 500, json: async () => ({ errors: [{ message: 'oops' }] }) };
-    return { ok: true, status: 200, json: async () => ({ result: { id: 'r1' } }) };
+    if (calls < 3) return { ok: false, status: 500, text: async () => JSON.stringify({ errors: [{ message: 'oops' }] }) };
+    return { ok: true, status: 200, text: async () => JSON.stringify({ result: { id: 'r1' } }) };
   };
   const r = await sendWithRetry({ method: 'GET', url: 'x', headers: {} }, { fetchImpl: fakeFetch, maxAttempts: 3, sleep: async () => {} });
   assert.equal(r.status, 200);
@@ -81,8 +83,8 @@ test('sendWithRetry: retries 429 then succeeds', async () => {
   let calls = 0;
   const fakeFetch = async () => {
     calls++;
-    if (calls < 2) return { ok: false, status: 429, json: async () => ({ errors: [{ message: 'rate' }] }) };
-    return { ok: true, status: 200, json: async () => ({ result: { id: 'r1' } }) };
+    if (calls < 2) return { ok: false, status: 429, text: async () => JSON.stringify({ errors: [{ message: 'rate' }] }) };
+    return { ok: true, status: 200, text: async () => JSON.stringify({ result: { id: 'r1' } }) };
   };
   const r = await sendWithRetry({ method: 'GET', url: 'x', headers: {} }, { fetchImpl: fakeFetch, maxAttempts: 3, sleep: async () => {} });
   assert.equal(r.status, 200);
@@ -90,14 +92,14 @@ test('sendWithRetry: retries 429 then succeeds', async () => {
 
 test('sendWithRetry: does not retry 4xx', async () => {
   let calls = 0;
-  const fakeFetch = async () => { calls++; return { ok: false, status: 400, json: async () => ({ errors: [{ message: 'bad' }] }) }; };
+  const fakeFetch = async () => { calls++; return { ok: false, status: 400, text: async () => JSON.stringify({ errors: [{ message: 'bad' }] }) }; };
   const r = await sendWithRetry({ method: 'POST', url: 'x', headers: {}, body: '{}' }, { fetchImpl: fakeFetch, maxAttempts: 3, sleep: async () => {} });
   assert.equal(r.status, 400);
   assert.equal(calls, 1);
 });
 
 test('sendWithRetry: throws after max attempts on persistent 5xx', async () => {
-  const fakeFetch = async () => ({ ok: false, status: 503, json: async () => ({ errors: [{ message: 'down' }] }) });
+  const fakeFetch = async () => ({ ok: false, status: 503, text: async () => JSON.stringify({ errors: [{ message: 'down' }] }) });
   await assert.rejects(
     sendWithRetry({ method: 'GET', url: 'x', headers: {} }, { fetchImpl: fakeFetch, maxAttempts: 3, sleep: async () => {} }),
     /503/
@@ -108,7 +110,7 @@ test('syncDiff: adds a new subdomain via POST', async () => {
   const calls = [];
   const fakeFetch = async (url, init) => {
     calls.push({ url, init });
-    return { ok: true, status: 200, json: async () => ({ result: { id: 'r-new', name: 'alice.made-in.app' } }) };
+    return { ok: true, status: 200, text: async () => JSON.stringify({ result: { id: 'r-new', name: 'alice.made-in.app' } }) };
   };
   const state = {};
   const result = await syncDiff(
@@ -123,8 +125,8 @@ test('syncDiff: modifies via lookup + PUT', async () => {
   const calls = [];
   const fakeFetch = async (url, init) => {
     calls.push({ url, init });
-    if (init.method === 'GET') return { ok: true, status: 200, json: async () => ({ result: [{ id: 'r-old' }] }) };
-    return { ok: true, status: 200, json: async () => ({ result: { id: 'r-old' } }) };
+    if (init.method === 'GET') return { ok: true, status: 200, text: async () => JSON.stringify({ result: [{ id: 'r-old' }] }) };
+    return { ok: true, status: 200, text: async () => JSON.stringify({ result: { id: 'r-old' } }) };
   };
   const state = { alice: { id: 'r-old', type: 'CNAME' } };
   const result = await syncDiff(
@@ -138,8 +140,8 @@ test('syncDiff: modifies via lookup + PUT', async () => {
 
 test('syncDiff: deletes via lookup + DELETE', async () => {
   const fakeFetch = async (url, init) => {
-    if (init.method === 'GET') return { ok: true, status: 200, json: async () => ({ result: [{ id: 'r-del' }] }) };
-    return { ok: true, status: 200, json: async () => ({ result: { id: 'r-del' } }) };
+    if (init.method === 'GET') return { ok: true, status: 200, text: async () => JSON.stringify({ result: [{ id: 'r-del' }] }) };
+    return { ok: true, status: 200, text: async () => JSON.stringify({ result: { id: 'r-del' } }) };
   };
   const state = { alice: { id: 'r-del', type: 'CNAME' } };
   const result = await syncDiff(

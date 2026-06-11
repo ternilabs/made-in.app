@@ -26,6 +26,12 @@ export function parseDiff(rawDiff) {
   });
 }
 
+function getToken() {
+  const t = process.env.CF_API_TOKEN;
+  if (!t) throw new Error('CF_API_TOKEN environment variable is required.');
+  return t;
+}
+
 function makeHeaders(token) {
   return {
     'Authorization': `Bearer ${token}`,
@@ -38,7 +44,7 @@ export function buildAddRequest(op, zoneId) {
   return {
     method: 'POST',
     url: `${API_BASE}/zones/${zoneId}/dns_records`,
-    headers: makeHeaders(process.env.CF_API_TOKEN || 'TOKEN'),
+    headers: makeHeaders(getToken()),
     body: JSON.stringify({ type: op.type, name: `${op.name}${ZONE_SUFFIX}`, content: op.content, ttl: 1, proxied: false }),
   };
 }
@@ -47,7 +53,7 @@ export function buildModifyRequest(op, zoneId, recordId) {
   return {
     method: 'PUT',
     url: `${API_BASE}/zones/${zoneId}/dns_records/${recordId}`,
-    headers: makeHeaders(process.env.CF_API_TOKEN || 'TOKEN'),
+    headers: makeHeaders(getToken()),
     body: JSON.stringify({ type: op.type, name: `${op.name}${ZONE_SUFFIX}`, content: op.content, ttl: 1, proxied: false }),
   };
 }
@@ -56,7 +62,7 @@ export function buildDeleteRequest(zoneId, recordId) {
   return {
     method: 'DELETE',
     url: `${API_BASE}/zones/${zoneId}/dns_records/${recordId}`,
-    headers: makeHeaders(process.env.CF_API_TOKEN || 'TOKEN'),
+    headers: makeHeaders(getToken()),
   };
 }
 
@@ -67,7 +73,7 @@ export function buildLookupRequest(zoneId, type, name) {
   return {
     method: 'GET',
     url: u.toString(),
-    headers: makeHeaders(process.env.CF_API_TOKEN || 'TOKEN'),
+    headers: makeHeaders(getToken()),
   };
 }
 
@@ -84,8 +90,10 @@ export async function sendWithRetry(request, opts = {}) {
     const init = { method: request.method, headers: request.headers };
     if (request.body !== undefined) init.body = request.body;
     const res = await fetchImpl(request.url, init);
-    const body = await res.json().catch(() => ({}));
-    const wrapped = { ok: res.ok, status: res.status, body };
+    const rawBody = await res.text();
+    let body;
+    try { body = JSON.parse(rawBody); } catch { body = { raw: rawBody }; }
+    const wrapped = { ok: res.ok, status: res.status, body, rawBody };
     if (res.ok) return wrapped;
     last = wrapped;
     if (res.status >= 400 && res.status < 500 && res.status !== 429) return wrapped;
