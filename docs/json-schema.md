@@ -8,7 +8,7 @@ JSON object with the following fields.
 | Field         | Type   | Required | Description |
 |---------------|--------|----------|-------------|
 | `description` | string | yes      | One-line summary of what you'll host (1–140 chars, no control characters). |
-| `repo`        | string | no       | HTTPS URL to the GitHub repository for the project (optional — omit for private repos). |
+| `repo`        | string | no       | HTTPS URL to the GitHub repository for the project (optional: omit for private repos). |
 | `owner`       | object | yes      | GitHub account that controls the subdomain (see below). |
 | `record`      | object | yes      | DNS record to create (exactly one key, see below). |
 

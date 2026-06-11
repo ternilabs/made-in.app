@@ -1,6 +1,8 @@
-# made-in.app/register
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2G81U8M9Z)
 
-Free, PR-driven subdomain registration for `*.made-in.app`.
+# made-in.app
+
+Free subdomain registration for `made-in.app`.
 
 ## How it works
 
@@ -24,5 +26,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## Code of conduct
 
-See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). By participating you agree
-to its terms.
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). By participating you agree to its terms.

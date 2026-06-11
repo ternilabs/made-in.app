@@ -5,9 +5,7 @@ Thanks for your interest in registering a `made-in.app` subdomain.
 ## Quick start
 
 1. Fork this repository.
-2. Add a single file `domains/<your-subdomain>.json` matching the
-   [JSON schema](docs/json-schema.md). The filename (minus `.json`)
-   is your subdomain.
+2. Add a single file `domains/<your-subdomain>.json` matching the [JSON schema](docs/json-schema.md). The filename (minus `.json`) is your subdomain.
 3. Use only the GitHub account you own as `owner.username`.
 4. Open a pull request using the template.
 5. Wait for a maintainer review. Most PRs are reviewed within 48h.
@@ -23,20 +21,16 @@ Thanks for your interest in registering a `made-in.app` subdomain.
 
 ## Record types
 
-v1 supports `A`, `AAAA`, `CNAME`, and `TXT`. See
-[docs/json-schema.md](docs/json-schema.md) for the full schema and
-examples.
+v1 supports `A`, `AAAA`, `CNAME`, and `TXT`. See [docs/json-schema.md](docs/json-schema.md) for the full schema and examples.
 
 ## Per-user cap
 
-Each GitHub user is limited to **5 subdomains** in v1. The CI posts a
-warning if your PR would exceed this; maintainers may grant exceptions.
+Each GitHub user is limited to **5 subdomains** in v1. The CI posts a warning if your PR would exceed this; maintainers may grant exceptions.
 
 ## Updates, transfers, and releases
 
 - **Update an existing subdomain:** open a PR modifying the file.
-- **Transfer ownership:** open a `[TRANSFER]` issue first (see
-  `.github/ISSUE_TEMPLATE/ownership-transfer.md`).
+- **Transfer ownership:** open a `[TRANSFER]` issue first (see `.github/ISSUE_TEMPLATE/ownership-transfer.md`).
 - **Release your subdomain:** open a PR deleting the file.
 
 ## Reporting abuse
