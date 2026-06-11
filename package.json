@@ -7,6 +7,8 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "test": "node --test 'util/__tests__/**/*.test.js' 'scripts/__tests__/**/*.test.js'"
+    "test": "node --test 'util/__tests__/**/*.test.js' 'scripts/__tests__/**/*.test.js'",
+    "validate": "node util/validate.js",
+    "deploy": "node util/deploy.js"
   }
 }
