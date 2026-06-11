@@ -8,7 +8,7 @@ JSON object with the following fields.
 | Field         | Type   | Required | Description |
 |---------------|--------|----------|-------------|
 | `description` | string | yes      | One-line summary of what you'll host (1–140 chars, no control characters). |
-| `repo`        | string | yes      | HTTPS URL to the GitHub repository for the project. |
+| `repo`        | string | no       | HTTPS URL to the GitHub repository for the project (optional — omit for private repos). |
 | `owner`       | object | yes      | GitHub account that controls the subdomain (see below). |
 | `record`      | object | yes      | DNS record to create (exactly one key, see below). |
 
@@ -24,8 +24,7 @@ JSON object with the following fields.
 
 ## `record` object
 
-Must contain exactly one key. The key is the DNS record type and the
-value is the target.
+Must contain exactly one key. The key is the DNS record type and the value is the target.
 
 | Type    | Value format       | Example                          |
 |---------|--------------------|----------------------------------|
@@ -48,8 +47,7 @@ value is the target.
 
 ### `CNAME` — canonical name
 
-Must be a valid hostname and must NOT be an IP address or point to
-`made-in.app` or any subdomain thereof.
+Must be a valid hostname and must NOT be an IP address or point to `made-in.app` or any subdomain thereof.
 
 ```json
 { "record": { "CNAME": "username.github.io" } }

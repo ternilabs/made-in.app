@@ -18,10 +18,8 @@ Examples: `alice`, `alice-blog`, `team-rocket`, `v3-test`.
 
 Your `record` field must point at a host you control. Most common:
 
-- **GitHub Pages:** create a repo named `<username>.github.io`, push
-  a static site, and set the custom domain to your subdomain.
-- **Vercel / Netlify / Cloudflare Pages:** deploy your project and
-  add your subdomain as a custom domain.
+- **GitHub Pages:** create a repo named `<username>.github.io`, push a static site, and set the custom domain to your subdomain.
+- **Vercel / Netlify / Cloudflare Pages:** deploy your project and add your subdomain as a custom domain.
 - **Raw IP:** set the `A` (or `AAAA`) record to your server's IP.
 
 For GitHub Pages, the typical `record` is:
@@ -31,7 +29,7 @@ For GitHub Pages, the typical `record` is:
 
 ## 3. Fork the register repo
 
-Go to https://github.com/made-in.app/register and click **Fork**.
+Go to https://github.com/ternilabs/made-in.app and click **Fork**.
 
 ## 4. Add your registration file
 
@@ -47,20 +45,17 @@ shape:
 }
 ```
 
-See [json-schema.md](json-schema.md) for the full schema and
-record-type examples.
+The `repo` field is optional — omit it for private repositories.
+
+See [json-schema.md](json-schema.md) for the full schema and record-type examples.
 
 ## 5. Open a pull request
 
-Commit the new file and open a PR against `made-in.app/register`'s
-`main` branch. Fill in the PR template. A maintainer will review
-your PR (most are reviewed within 48h).
+Commit the new file and open a PR against `made-in.app/register`'s `main` branch. Fill in the PR template. A maintainer will review your PR (most are reviewed within 48h).
 
 ## 6. Wait for the merge
 
-When your PR is merged, the `deploy` workflow creates your DNS
-record within seconds. DNS propagation is typically complete
-globally within 5 minutes. Verify with:
+When your PR is merged, the `deploy` workflow creates your DNS record within seconds. DNS propagation is typically complete globally within 5 minutes. Verify with:
 
 ```
 dig <your-subdomain>.made-in.app @1.1.1.1
@@ -68,10 +63,7 @@ dig <your-subdomain>.made-in.app @1.1.1.1
 
 ## 7. (Optional) Configure your host
 
-If you're using GitHub Pages, add your subdomain as a custom
-domain in your repo's **Settings** → **Pages**. GitHub will
-automatically create a `CNAME` file with the subdomain name; commit
-that file. HTTPS provisioning can take up to 30 minutes.
+If you're using GitHub Pages, add your subdomain as a custom domain in your repo's **Settings** → **Pages**. GitHub will automatically create a `CNAME` file with the subdomain name; commit that file. HTTPS provisioning can take up to 30 minutes.
 
 ## Next steps
 

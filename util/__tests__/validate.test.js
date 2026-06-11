@@ -157,6 +157,15 @@ test('validateRegistration: accepts a complete registration', () => {
   assert.equal(r.ok, true, JSON.stringify(r.errors));
 });
 
+test('validateRegistration: accepts registration without repo', () => {
+  const r = validateRegistration({
+    description: 'Private project',
+    owner: { username: 'alice' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, true, JSON.stringify(r.errors));
+});
+
 test('validateRegistration: rejects missing description', () => {
   const r = validateRegistration({
     repo: 'https://github.com/alice/alice',

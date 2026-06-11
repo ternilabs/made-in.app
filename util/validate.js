@@ -120,6 +120,7 @@ export function validateDescription(value) {
 }
 
 export function validateRepo(value) {
+  if (value === undefined) return null;
   if (typeof value !== 'string') return 'Repo must be a string.';
   if (!GH_REPO_RE.test(value)) return 'Repo must be a valid HTTPS GitHub URL.';
   return null;
@@ -142,8 +143,10 @@ export function validateRegistration(json) {
   }
   const descErr = validateDescription(json.description);
   if (descErr) errors.push(descErr);
-  const repoErr = validateRepo(json.repo);
-  if (repoErr) errors.push(repoErr);
+  if (json.repo !== undefined) {
+    const repoErr = validateRepo(json.repo);
+    if (repoErr) errors.push(repoErr);
+  }
   const ownerErr = validateOwner(json.owner);
   if (ownerErr) errors.push(ownerErr);
   const recordResult = validateRecord(json.record);
