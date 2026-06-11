@@ -31,7 +31,11 @@ to make the review faster. Incomplete PRs may be closed without review.
 
 ## Live URL
 
-- **URL:** `http://<your-subdomain>.made-in.app` (HTTPS may take a few minutes to provision)
+<!-- Link to the website or project already live (e.g. GitHub Pages, Vercel, Netlify).
+     This helps maintainers verify the site exists and is functional before approving.
+     The made-in.app subdomain won't resolve until the PR is merged. -->
+
+- **URL:** `https://<username>.github.io`
 
 ## Type of change
 
