@@ -7,6 +7,6 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "test": "node --test util/__tests__ scripts/__tests__"
+    "test": "node --test 'util/__tests__/**/*.test.js' 'scripts/__tests__/**/*.test.js'"
   }
 }
