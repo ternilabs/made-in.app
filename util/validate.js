@@ -1,4 +1,5 @@
 import { RESERVED } from './reserved-list.js';
+import { isIPv6 } from 'node:net';
 
 const NAME_RE = /^[a-z0-9-]+$/;
 const PURE_NUMERIC_RE = /^[0-9]+$/;
@@ -9,7 +10,7 @@ const SUPPORTED_TYPES = new Set(['A', 'AAAA', 'CNAME', 'TXT']);
 
 const IPV4_RE = /^(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d?\d)$/;
 
-const IPV6_RE = /^(?:[0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4}$|^[0-9a-fA-F:]+::[0-9a-fA-F:]*$|^::1$|^::$/;
+const IPV6_RE = isIPv6;
 
 const HOSTNAME_RE = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
@@ -80,12 +81,12 @@ export function validateRecord(record) {
       }
       break;
     case 'AAAA':
-      if (!IPV6_RE.test(value)) {
+      if (!IPV6_RE(value)) {
         errors.push('AAAA record must be a valid IPv6 address.');
       }
       break;
     case 'CNAME':
-      if (IPV4_RE.test(value)) {
+      if (IPV4_RE.test(value) || IPV6_RE(value)) {
         errors.push('CNAME record must not be an IP address.');
       } else if (!HOSTNAME_RE.test(value)) {
         errors.push('CNAME record must be a valid hostname.');

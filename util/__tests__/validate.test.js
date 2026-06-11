@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateSubdomainName } from '../validate.js';
+import { validateSubdomainName, validateRecord } from '../validate.js';
 
 test('validateSubdomainName: accepts a normal name', () => {
   assert.deepEqual(validateSubdomainName('alice'), { ok: true, errors: [] });
@@ -65,8 +65,6 @@ test('validateSubdomainName: rejects bad characters', () => {
   const r = validateSubdomainName('ali ce');
   assert.equal(r.ok, false);
 });
-
-import { validateRecord } from '../validate.js';
 
 test('validateRecord: accepts valid A record', () => {
   const r = validateRecord({ A: '203.0.113.42' });
