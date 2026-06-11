@@ -23,7 +23,7 @@ jobs:
         run: |
           PREV=$(git rev-parse HEAD~1)
           git diff --name-status $PREV HEAD -- 'domains/' > diff.txt
-          node scripts/build-diff.mjs < diff.txt > diff.json || echo '[]' > diff.json
+          node scripts/build-diff.mjs < diff.txt > diff.json || (echo '[]' > diff.json && echo "::warning::build-diff.mjs failed, deploying empty diff" >&2)
           cat diff.json
 
       - name: Sync DNS records
@@ -46,6 +46,8 @@ jobs:
       - name: Open failure issue on error
         if: failure()
         uses: actions/github-script@v7
+        env:
+          GH_TOKEN_FOR_ISSUE: ${{ secrets.DEPLOY_FAILURE_ISSUE_TOKEN }}
         with:
           script: |
             const fs = require('fs');

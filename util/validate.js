@@ -18,7 +18,7 @@ const HOSTNAME_RE = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-
 const MADE_IN_APP_RE = /(?:^|\.)made-in\.app$/;
 
 const GH_USER_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
-const GH_REPO_RE = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/;
+const GH_REPO_RE = /^https:\/\/github\.com\/[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\/[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\/?$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validateSubdomainName(name) {
