@@ -1,0 +1,69 @@
+name: lock-pr
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, labeled, unlabeled, assigned, unassigned, milestoned, demilestoned, review_request_removed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const number = pr.number;
+            const repo = context.repo;
+
+            const actions = [];
+
+            const maintainers = ['mkgp-dev'];
+            const requested = new Set((pr.requested_reviewers || []).map(r => r.login));
+            const missing = maintainers.filter(m => !requested.has(m));
+            if (missing.length > 0) {
+              actions.push(github.rest.pulls.requestReviewers({
+                owner: repo.owner,
+                repo: repo.repo,
+                pull_number: number,
+                reviewers: missing,
+              }));
+            }
+
+            const allowedLabels = new Set(['deploy-failure']);
+            for (const label of (pr.labels || [])) {
+              if (!allowedLabels.has(label.name)) {
+                actions.push(github.rest.issues.removeLabel({
+                  owner: repo.owner,
+                  repo: repo.repo,
+                  issue_number: number,
+                  name: label.name,
+                }).catch(() => {}));
+              }
+            }
+
+            if (pr.milestone) {
+              actions.push(github.rest.issues.update({
+                owner: repo.owner,
+                repo: repo.repo,
+                issue_number: number,
+                milestone: null,
+              }).catch(() => {}));
+            }
+
+            const author = pr.user.login;
+            const assignees = (pr.assignees || []).map(a => a.login);
+            const unauthorized = assignees.filter(a => a !== author);
+            if (unauthorized.length > 0) {
+              actions.push(github.rest.issues.removeAssignees({
+                owner: repo.owner,
+                repo: repo.repo,
+                issue_number: number,
+                assignees: unauthorized,
+              }).catch(() => {}));
+            }
+
+            await Promise.all(actions);
+            console.log(`Locked PR #${number}`);
