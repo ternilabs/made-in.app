@@ -1,0 +1,6 @@
+{
+  "description": "Valid registration",
+  "repo": "https://github.com/alice/alice",
+  "owner": { "username": "alice" },
+  "record": { "CNAME": "alice.github.io" }
+}

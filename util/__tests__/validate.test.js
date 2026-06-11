@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateSubdomainName, validateRecord } from '../validate.js';
+import { validateSubdomainName, validateRecord, validateRegistration } from '../validate.js';
 
 test('validateSubdomainName: accepts a normal name', () => {
   assert.deepEqual(validateSubdomainName('alice'), { ok: true, errors: [] });
@@ -139,4 +139,106 @@ test('validateRecord: rejects TXT over 255 chars', () => {
 test('validateRecord: rejects empty TXT', () => {
   const r = validateRecord({ TXT: '' });
   assert.equal(r.ok, false);
+});
+
+test('validateRegistration: accepts a complete registration', () => {
+  const r = validateRegistration({
+    description: 'My portfolio',
+    repo: 'https://github.com/alice/alice',
+    owner: { username: 'alice' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, true, JSON.stringify(r.errors));
+});
+
+test('validateRegistration: rejects missing description', () => {
+  const r = validateRegistration({
+    repo: 'https://github.com/alice/alice',
+    owner: { username: 'alice' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, false);
+});
+
+test('validateRegistration: rejects description over 140 chars', () => {
+  const r = validateRegistration({
+    description: 'a'.repeat(141),
+    repo: 'https://github.com/alice/alice',
+    owner: { username: 'alice' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, false);
+});
+
+test('validateRegistration: rejects non-github repo URL', () => {
+  const r = validateRegistration({
+    description: 'x',
+    repo: 'https://gitlab.com/alice/alice',
+    owner: { username: 'alice' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, false);
+});
+
+test('validateRegistration: rejects non-HTTPS repo URL', () => {
+  const r = validateRegistration({
+    description: 'x',
+    repo: 'http://github.com/alice/alice',
+    owner: { username: 'alice' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, false);
+});
+
+test('validateRegistration: rejects invalid github username', () => {
+  const r = validateRegistration({
+    description: 'x',
+    repo: 'https://github.com/alice/alice',
+    owner: { username: '-alice-' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, false);
+});
+
+test('validateRegistration: accepts optional owner email if valid', () => {
+  const r = validateRegistration({
+    description: 'x',
+    repo: 'https://github.com/alice/alice',
+    owner: { username: 'alice', email: 'alice@example.com' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, true);
+});
+
+test('validateRegistration: rejects invalid owner email', () => {
+  const r = validateRegistration({
+    description: 'x',
+    repo: 'https://github.com/alice/alice',
+    owner: { username: 'alice', email: 'not-an-email' },
+    record: { CNAME: 'alice.github.io' },
+  });
+  assert.equal(r.ok, false);
+});
+
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CLI = join(__dirname, '..', 'validate.js');
+
+test('validate CLI: --file accepts a valid registration', () => {
+  const path = join(__dirname, 'fixtures', 'valid.json');
+  const out = execFileSync('node', [CLI, '--file', path], { encoding: 'utf8' });
+  assert.match(out, /OK/);
+});
+
+test('validate CLI: --file rejects an invalid registration', () => {
+  let exitCode = 0;
+  try {
+    execFileSync('node', [CLI, '--file', join(__dirname, 'fixtures', 'invalid.json')], { encoding: 'utf8' });
+  } catch (err) {
+    exitCode = err.status;
+  }
+  assert.equal(exitCode, 1);
 });

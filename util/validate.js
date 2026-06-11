@@ -16,6 +16,10 @@ const HOSTNAME_RE = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-
 
 const MADE_IN_APP_RE = /(?:^|\.)made-in\.app$/;
 
+const GH_USER_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,38}[a-zA-Z0-9])?$/;
+const GH_REPO_RE = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function validateSubdomainName(name) {
   const errors = [];
   if (typeof name !== 'string' || name.length === 0) {
@@ -104,4 +108,90 @@ export function validateRecord(record) {
   }
 
   return { ok: errors.length === 0, errors };
+}
+
+export function validateDescription(value) {
+  if (typeof value !== 'string') return 'Description must be a string.';
+  const trimmed = value.trim();
+  if (trimmed.length < 1 || trimmed.length > 140) return 'Description must be between 1 and 140 characters.';
+  if (/[\x00-\x1f]/.test(value)) return 'Description must not contain control characters.';
+  return null;
+}
+
+export function validateRepo(value) {
+  if (typeof value !== 'string') return 'Repo must be a string.';
+  if (!GH_REPO_RE.test(value)) return 'Repo must be a valid HTTPS GitHub URL.';
+  return null;
+}
+
+export function validateOwner(owner) {
+  if (!owner || typeof owner !== 'object' || Array.isArray(owner)) return 'Owner must be an object.';
+  if (typeof owner.username !== 'string' || !GH_USER_RE.test(owner.username)) return 'Owner username must be a valid GitHub username.';
+  if (owner.email !== undefined) {
+    if (typeof owner.email !== 'string' || !EMAIL_RE.test(owner.email)) return 'Owner email must be a valid email address.';
+  }
+  return null;
+}
+
+export function validateRegistration(json) {
+  const errors = [];
+  if (!json || typeof json !== 'object' || Array.isArray(json)) {
+    errors.push('Registration must be a non-null object.');
+    return { ok: false, errors };
+  }
+  const descErr = validateDescription(json.description);
+  if (descErr) errors.push(descErr);
+  const repoErr = validateRepo(json.repo);
+  if (repoErr) errors.push(repoErr);
+  const ownerErr = validateOwner(json.owner);
+  if (ownerErr) errors.push(ownerErr);
+  const recordResult = validateRecord(json.record);
+  if (!recordResult.ok) errors.push(...recordResult.errors);
+  return { ok: errors.length === 0, errors };
+}
+
+import { readFileSync } from 'node:fs';
+
+function parseArgs(argv) {
+  const args = {};
+  for (let i = 2; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--file' && i + 1 < argv.length) args.file = argv[++i];
+    else if (a === '--all') args.all = true;
+    else if (a === '--name' && i + 1 < argv.length) args.name = argv[++i];
+  }
+  return args;
+}
+
+export function main(argv = process.argv) {
+  const args = parseArgs(argv);
+  if (args.file) {
+    const subdomain = args.file.split('/').pop().replace(/\.json$/, '');
+    const raw = readFileSync(args.file, 'utf8');
+    const json = JSON.parse(raw);
+    const nameResult = validateSubdomainName(subdomain);
+    const regResult = validateRegistration(json);
+    const errors = [...nameResult.errors, ...regResult.errors];
+    if (errors.length > 0) {
+      for (const e of errors) console.error(`- ${e}`);
+      return 1;
+    }
+    console.log(`OK: ${subdomain}`);
+    return 0;
+  }
+  if (args.name) {
+    const r = validateSubdomainName(args.name);
+    if (!r.ok) {
+      for (const e of r.errors) console.error(`- ${e}`);
+      return 1;
+    }
+    console.log(`OK: ${args.name}`);
+    return 0;
+  }
+  console.error('Usage: validate.js --file <path> | --name <name>');
+  return 2;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  process.exit(main());
 }
