@@ -43,6 +43,14 @@ warning if your PR would exceed this; maintainers may grant exceptions.
 
 Open a `report-abuse` issue against this repo.
 
+## Documentation
+
+- [Getting started](docs/getting-started.md)
+- [JSON schema](docs/json-schema.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [FAQ](docs/faq.md)
+- [Maintainer runbook](docs/maintainer-runbook.md)
+
 ## Code of conduct
 
 See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
