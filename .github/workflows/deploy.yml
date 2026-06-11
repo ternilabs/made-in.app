@@ -1,0 +1,72 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Compute diff
+        id: diff
+        run: |
+          PREV=$(git rev-parse HEAD~1)
+          git diff --name-status $PREV HEAD -- 'domains/' > diff.txt
+          node scripts/build-diff.mjs < diff.txt > diff.json || echo '[]' > diff.json
+          cat diff.json
+
+      - name: Sync DNS records
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: node util/deploy.js --diff diff.json
+
+      - name: Update state file
+        run: |
+          node scripts/update-state.mjs
+          git config user.name 'made-in-app-bot'
+          git config user.email 'bot@made-in.app'
+          git add domains/.state.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore(bot): update .state.json after deploy'
+            git push
+          fi
+
+      - name: Open failure issue on error
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY || '/dev/null', 'utf8') || 'deploy failed';
+            const body = `The deploy workflow failed.\n\n\`\`\`\n${log}\n\`\`\``;
+            const token = process.env.GH_TOKEN_FOR_ISSUE;
+            if (!token) {
+              console.error('DEPLOY_FAILURE_ISSUE_TOKEN not set, skipping issue creation');
+              return;
+            }
+            const res = await fetch(`${process.env.GITHUB_API_URL}/repos/${process.env.GITHUB_REPOSITORY}/issues`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+              },
+              body: JSON.stringify({
+                title: 'deploy-failure: see logs',
+                body,
+                labels: ['deploy-failure'],
+              }),
+            });
+            if (!res.ok) console.error('Failed to open issue:', res.status, await res.text());
