@@ -25,6 +25,13 @@ The service is provided **as-is** with no guarantee of uptime. The maintainer ma
 
 The maintainer may remove any subdomain, with or without notice, for any reason including (but not limited to) a violation of these terms, an abuse report, or extended inactivity.
 
+## Inactive Subdomains
+
+Subdomains that show no merged activity, no DNS response, or no reachable
+destination for twelve (12) consecutive months may be reclaimed at the
+maintainer's discretion. The maintainer will make a reasonable attempt to
+contact the registered owner via GitHub before reclaiming.
+
 ## No warranty
 
 THE SERVICE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
