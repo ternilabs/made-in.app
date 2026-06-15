@@ -12,6 +12,22 @@ Free subdomain registration for `made-in.app`.
 4. A maintainer reviews and merges.
 5. On merge, a GitHub Action creates the DNS record automatically.
 
+### Example registration
+
+Create `domains/your-subdomain.json` with this structure:
+
+```json
+{
+  "description": "My personal site",
+  "owner": { "username": "your-github-username" },
+  "record": { "CNAME": "your-username.github.io" }
+}
+```
+
+See [docs/json-schema.md](docs/json-schema.md) for the full schema (record types, optional `repo` field, description length limits).
+
+DNS propagation typically takes 1–5 minutes after merge.
+
 ## Documentation
 
 - [Getting started](docs/getting-started.md)
