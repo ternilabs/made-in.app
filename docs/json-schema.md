@@ -94,4 +94,4 @@ postmaster, hostmaster, webmaster,
 no-reply, noreply
 ```
 
-This list is maintained in [`util/reserved-list.js`](../util/reserved-list.js).
+This list is maintained in [`util/reserved-list.js`](blob/main/util/reserved-list.js).

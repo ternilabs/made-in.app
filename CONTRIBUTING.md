@@ -5,7 +5,7 @@ Thanks for your interest in registering a `made-in.app` subdomain.
 ## Quick start
 
 1. Fork this repository.
-2. Add a single file `domains/<your-subdomain>.json` matching the [JSON schema](docs/json-schema.md). The filename (minus `.json`) is your subdomain.
+2. Add a single file `domains/<your-subdomain>.json` matching the [JSON schema](blob/main/docs/json-schema.md). The filename (minus `.json`) is your subdomain.
 3. Use only the GitHub account you own as `owner.username`.
 4. Open a pull request using the template.
 5. Wait for a maintainer review. Most PRs are reviewed within 48h.
@@ -19,11 +19,11 @@ Thanks for your interest in registering a `made-in.app` subdomain.
 - No leading or trailing hyphens
 - No consecutive hyphens (`--`)
 - Must contain at least one letter
-- Not on the [reserved list](docs/json-schema.md#reserved-subdomains)
+- Not on the [reserved list](blob/main/docs/json-schema.md#reserved-subdomains)
 
 ## Record types
 
-v1 supports `A`, `AAAA`, `CNAME`, and `TXT`. See [docs/json-schema.md](docs/json-schema.md) for the full schema and examples.
+v1 supports `A`, `AAAA`, `CNAME`, and `TXT`. See [docs/json-schema.md](blob/main/docs/json-schema.md) for the full schema and examples.
 
 ## Per-user cap
 
@@ -49,12 +49,12 @@ Open a `report-abuse` issue against this repo. **Do not email `administrator@mad
 
 ## Documentation
 
-- [Getting started](docs/getting-started.md)
-- [JSON schema](docs/json-schema.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [FAQ](docs/faq.md)
-- [Maintainer runbook](docs/maintainer-runbook.md)
+- [Getting started](blob/main/docs/getting-started.md)
+- [JSON schema](blob/main/docs/json-schema.md)
+- [Troubleshooting](blob/main/docs/troubleshooting.md)
+- [FAQ](blob/main/docs/faq.md)
+- [Maintainer runbook](blob/main/docs/maintainer-runbook.md)
 
 ## Code of conduct
 
-See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+See [CODE_OF_CONDUCT.md](blob/main/CODE_OF_CONDUCT.md).
