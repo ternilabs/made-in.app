@@ -45,4 +45,4 @@ Typically under 5 minutes globally when using Cloudflare's DNS. Because Cloudfla
 
 ## Will there be a website at the apex (`made-in.app`)?
 
-Not in v1. The apex and `www.made-in.app` redirect to the [register repo](https://github.com/made-in.app/register). A landing page or portal may be built in the future.
+Not in v1. The apex and `www.made-in.app` redirect to the [register repo](https://github.com/ternilabs/made-in.app). A landing page or portal may be built in the future.

@@ -1,7 +1,6 @@
 # Terms of Service
 
-By registering a subdomain under `made-in.app` you agree to the
-following terms.
+By registering a subdomain under `made-in.app` you agree to the following terms.
 
 ## Eligibility
 
@@ -27,10 +26,7 @@ The maintainer may remove any subdomain, with or without notice, for any reason 
 
 ## Inactive Subdomains
 
-Subdomains that show no merged activity, no DNS response, or no reachable
-destination for twelve (12) consecutive months may be reclaimed at the
-maintainer's discretion. The maintainer will make a reasonable attempt to
-contact the registered owner via GitHub before reclaiming.
+Subdomains that show no merged activity, no DNS response, or no reachable destination for twelve (12) consecutive months may be reclaimed at the maintainer's discretion. The maintainer will make a reasonable attempt to contact the registered owner via GitHub before reclaiming.
 
 ## No warranty
 

@@ -1,6 +1,6 @@
 # Security
 
-This document is for **security vulnerabilities in the project's code or infrastructure** — for example, validation bypasses, deploy-script bugs, or secrets exposure.
+This document is for **security vulnerabilities in the project's code or infrastructure**, for example, validation bypasses, deploy-script bugs, or secrets exposure.
 
 - **Email:** administrator@made-in.app
 - **Please do not file public issues for security vulnerabilities.**
