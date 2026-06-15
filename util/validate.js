@@ -135,6 +135,16 @@ export function validateOwner(owner) {
   return null;
 }
 
+export function validateOwnerMatchesAuthor(json, prAuthor) {
+  if (!prAuthor) return null;
+  const ownerName = json?.owner?.username;
+  if (!ownerName) return null;
+  if (ownerName.toLowerCase() !== prAuthor.toLowerCase()) {
+    return `owner.username "${ownerName}" does not match PR author "${prAuthor}".`;
+  }
+  return null;
+}
+
 export function validateRegistration(json) {
   const errors = [];
   if (!json || typeof json !== 'object' || Array.isArray(json)) {
@@ -173,7 +183,10 @@ export function main(argv = process.argv) {
       const json = JSON.parse(raw);
       const nameResult = validateSubdomainName(subdomain);
       const regResult = validateRegistration(json);
+      const prAuthor = process.env.PR_AUTHOR;
+      const authorErr = validateOwnerMatchesAuthor(json, prAuthor);
       const errors = [...nameResult.errors, ...regResult.errors];
+      if (authorErr) errors.push(authorErr);
       if (errors.length > 0) {
         for (const e of errors) console.error(`- ${e}`);
         return 1;

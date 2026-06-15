@@ -24,6 +24,8 @@ jobs:
           echo "has_changes=$([ -s changed.txt ] && echo true || echo false)" >> $GITHUB_OUTPUT
       - name: Validate changed files
         if: steps.changed.outputs.has_changes == 'true'
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           set -e
           while IFS= read -r f; do

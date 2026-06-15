@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { validateSubdomainName, validateRecord, validateRegistration } from '../validate.js';
+import { validateSubdomainName, validateRecord, validateRegistration, validateOwnerMatchesAuthor } from '../validate.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CLI = join(__dirname, '..', 'validate.js');
@@ -251,6 +251,29 @@ test('validate CLI: --file handles missing file', () => {
   assert.throws(() => {
     execFileSync('node', [CLI, '--file', join(__dirname, 'fixtures', 'nope.json')], { encoding: 'utf8' });
   }, { status: 1 });
+});
+
+test('validateOwnerMatchesAuthor: returns null when prAuthor is undefined', () => {
+  const json = { owner: { username: 'alice' } };
+  assert.equal(validateOwnerMatchesAuthor(json, undefined), null);
+});
+
+test('validateOwnerMatchesAuthor: returns null when owner is missing', () => {
+  assert.equal(validateOwnerMatchesAuthor({}, 'eve'), null);
+});
+
+test('validateOwnerMatchesAuthor: returns null on case-insensitive match', () => {
+  const json = { owner: { username: 'Alice' } };
+  assert.equal(validateOwnerMatchesAuthor(json, 'alice'), null);
+  assert.equal(validateOwnerMatchesAuthor(json, 'ALICE'), null);
+});
+
+test('validateOwnerMatchesAuthor: returns error string on mismatch', () => {
+  const json = { owner: { username: 'alice' } };
+  const err = validateOwnerMatchesAuthor(json, 'eve');
+  assert.ok(err);
+  assert.match(err, /alice/);
+  assert.match(err, /eve/);
 });
 
 test('validate CLI: --file handles invalid JSON', () => {
