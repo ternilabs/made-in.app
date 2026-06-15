@@ -21,8 +21,9 @@ jobs:
         run: |
           git diff --name-only origin/${{ github.base_ref }} -- 'domains/*.json' > changed.txt
           cat changed.txt
+          echo "has_changes=$([ -s changed.txt ] && echo true || echo false)" >> $GITHUB_OUTPUT
       - name: Validate changed files
-        if: hashFiles('changed.txt') != ''
+        if: steps.changed.outputs.has_changes == 'true'
         run: |
           set -e
           while IFS= read -r f; do
