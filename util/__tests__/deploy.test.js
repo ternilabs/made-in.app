@@ -159,7 +159,7 @@ test('main: writes state file with new record IDs after syncDiff', async () => {
     { status: 'A', file: 'domains/alice.json', content: { record: { CNAME: 'alice.github.io' } } },
   ]);
   const statePath = 'domains/.state.json';
-  const diffPath = '/tmp/opencode/deploy-test-diff.json';
+  const diffPath = 'deploy-test-diff.json';
   fs.writeFileSync(diffPath, diffContent);
   const origState = fs.existsSync(statePath) ? fs.readFileSync(statePath, 'utf8') : null;
   fs.writeFileSync(statePath, '{}');
