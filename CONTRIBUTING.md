@@ -10,6 +10,8 @@ Thanks for your interest in registering a `made-in.app` subdomain.
 4. Open a pull request using the template.
 5. Wait for a maintainer review. Most PRs are reviewed within 48h.
 
+> We use LF line endings throughout the repository. If you develop on Windows, set `git config core.autocrlf false` so Git doesn't convert them to CRLF on commit.
+
 ## Subdomain rules
 
 - 2 to 32 characters
