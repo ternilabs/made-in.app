@@ -1,0 +1,25 @@
+name: stale
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Mondays at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 14
+          days-before-close: 7
+          stale-pr-message: 'This PR has had no activity for 14 days. It will be closed in 7 days unless updated.'
+          close-pr-message: 'Closed due to inactivity. Reopen if you return to it.'
+          stale-issue-message: 'This issue has had no activity for 14 days. It will be closed in 7 days unless updated.'
+          close-issue-message: 'Closed due to inactivity.'
+          exempt-issue-labels: 'ownership-transfer,deploy-failure,pinned'
+          exempt-pr-labels: 'ownership-transfer,deploy-failure'
+          operations-per-run: 30
