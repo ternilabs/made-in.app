@@ -32,8 +32,16 @@ Each GitHub user is limited to **5 subdomains** in v1. The CI posts a warning if
 ## Updates, transfers, and releases
 
 - **Update an existing subdomain:** open a PR modifying the file.
-- **Transfer ownership:** open a `[TRANSFER]` issue first (see `.github/ISSUE_TEMPLATE/ownership-transfer.md`).
 - **Release your subdomain:** open a PR deleting the file.
+
+### Transferring ownership
+
+Both the current and new owner must confirm the transfer before any PR is opened. This prevents unauthorized hijacking and ensures the maintainer can act on a clearly-attested agreement.
+
+1. **Open a `[TRANSFER]` issue** using the ownership-transfer template.
+2. **Both parties comment to confirm.** The current owner types `@old-user` and the new owner types `@new-user` as separate comments on the issue.
+3. **New owner opens a PR** that updates only the `owner` field in the existing `domains/<name>.json` file.
+4. **Maintainer merges the PR** and exempts the new owner from the per-user cap if the transfer would push them over 5.
 
 ## Reporting abuse
 
