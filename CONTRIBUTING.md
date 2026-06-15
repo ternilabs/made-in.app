@@ -45,7 +45,7 @@ Both the current and new owner must confirm the transfer before any PR is opened
 
 ## Reporting abuse
 
-Open a `report-abuse` issue against this repo.
+Open a `report-abuse` issue against this repo. **Do not email `administrator@made-in.app` for abuse** — that address is for security vulnerabilities only and abuse reports sent there slow down triage for both you and security reporters.
 
 ## Documentation
 
