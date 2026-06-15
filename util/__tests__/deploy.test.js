@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildAddRequest, buildModifyRequest, buildDeleteRequest, buildLookupRequest, parseDiff,
-  sendWithRetry, syncDiff,
+  main, sendWithRetry, syncDiff,
 } from '../deploy.js';
 
 test('parseDiff: parses A status with content', () => {
@@ -150,4 +150,44 @@ test('syncDiff: deletes via lookup + DELETE', async () => {
   );
   assert.equal(result.deleted, 1);
   assert.equal(state.alice, undefined);
+});
+
+import * as fs from 'node:fs';
+
+test('main: writes state file with new record IDs after syncDiff', async () => {
+  const diffContent = JSON.stringify([
+    { status: 'A', file: 'domains/alice.json', content: { record: { CNAME: 'alice.github.io' } } },
+  ]);
+  const statePath = 'domains/.state.json';
+  const diffPath = '/tmp/opencode/deploy-test-diff.json';
+  fs.writeFileSync(diffPath, diffContent);
+  const origState = fs.existsSync(statePath) ? fs.readFileSync(statePath, 'utf8') : null;
+  fs.writeFileSync(statePath, '{}');
+
+  const fakeFetch = async () => ({
+    ok: true,
+    status: 200,
+    text: async () => JSON.stringify({ result: { id: 'rec-abc' } }),
+  });
+  const origZoneId = process.env.CF_ZONE_ID;
+  process.env.CF_ZONE_ID = 'test-zone';
+  const origFetch = globalThis.fetch;
+  globalThis.fetch = fakeFetch;
+  try {
+    const code = await main(['node', 'deploy.js', '--diff', diffPath]);
+    assert.equal(code, 0);
+    const written = fs.readFileSync(statePath, 'utf8');
+    const parsed = JSON.parse(written);
+    assert.equal(parsed.alice.id, 'rec-abc');
+    assert.equal(parsed.alice.type, 'CNAME');
+  } finally {
+    fs.unlinkSync(diffPath);
+    if (origState !== null) {
+      fs.writeFileSync(statePath, origState);
+    } else {
+      fs.unlinkSync(statePath);
+    }
+    process.env.CF_ZONE_ID = origZoneId;
+    globalThis.fetch = origFetch;
+  }
 });
