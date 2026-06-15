@@ -46,8 +46,7 @@ If the deploy workflow fails after merging a PR:
 
 1. Go to **Actions** → failed run → **deploy** job.
 2. Check the logs. Common causes:
-   - `CF_API_TOKEN` expired → generate a new token and update the
-     repo secret.
+   - `CF_API_TOKEN` expired → generate a new token and update the repo secret.
    - `CF_ZONE_ID` wrong → check it matches the Cloudflare dashboard.
    - Network error → re-run the workflow (Actions → failed run → Re-run jobs).
 3. If the issue is intermittent, re-run. If persistent, open an infra issue.
