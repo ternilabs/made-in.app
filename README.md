@@ -38,7 +38,7 @@ DNS propagation typically takes 1–5 minutes after merge.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+This is a source-available project. You can use it and modify it for personal, non-commercial purposes, but you may not redistribute it or claim it as your own. See the [LICENSE](blob/main/LICENSE) file for full details.
 
 ## Code of conduct
 
