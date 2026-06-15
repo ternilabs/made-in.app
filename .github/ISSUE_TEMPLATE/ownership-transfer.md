@@ -18,4 +18,4 @@ labels: ownership-transfer
 
 - [ ] I am `old-user` and I consent to this transfer. *(comment `@old-user` below to confirm)*
 - [ ] I am `new-user` and I accept ownership. *(comment `@new-user` below to confirm)*
-- [ ] I (`new-user`) have read the [Terms of Service](../TERMS_OF_SERVICE.md) and [CONTRIBUTING.md](../CONTRIBUTING.md), and will open the corresponding PR once both confirmations are recorded.
+- [ ] I (`new-user`) have read the [Terms of Service](blob/main/TERMS_OF_SERVICE.md) and [CONTRIBUTING.md](blob/main/CONTRIBUTING.md), and will open the corresponding PR once both confirmations are recorded.
