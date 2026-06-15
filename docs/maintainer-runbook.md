@@ -32,6 +32,14 @@ If everything checks out, approve and merge. If not, leave a comment explaining 
 4. **Exempt the new owner from the per-user cap** if the transfer would push them over 5 (they didn't choose to add a new domain, they inherited one).
 5. Merge the PR.
 
+## Known limitations
+
+### Per-user cap is checked post-checkout, not from PR delta
+
+`scripts/check-cap.mjs` runs after the PR branch's `domains/` files are checked out, so it counts all files including the new one(s). Two simultaneous PRs from the same user, each at the cap boundary, will both pass CI and the maintainer will land at N+1 after merging the second.
+
+**Mitigation:** maintainers must re-run the cap count (or open the second PR's diff against `main`) before merging a PR that comes from a user who already has 4 or 5 subdomains.
+
 ## Recovering from a failed deploy
 
 If the deploy workflow fails after merging a PR:
