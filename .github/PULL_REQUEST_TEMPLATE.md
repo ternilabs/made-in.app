@@ -23,10 +23,8 @@ to make the review faster. Incomplete PRs may be closed without review.
 
 ## Preview
 
-<!-- Paste a screenshot or image URL showing the website hosted at this
-     subdomain. This helps maintainers verify the site is real and functional. -->
-
-![Preview](paste-screenshot-url-here)
+<!-- Optional but encouraged. A live URL (see below) is sufficient on its own.
+     PRs without a preview screenshot are not auto-closed. -->
 
 ## Live URL
 
