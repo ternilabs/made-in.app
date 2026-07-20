@@ -155,6 +155,119 @@ test('syncDiff: add failure reports Cloudflare error instead of TypeError', asyn
   assert.equal(state['podcast-assistant'], undefined);
 });
 
+test('syncDiff: add duplicate recovers existing matching record by lookup', async () => {
+  const calls = [];
+  const fakeFetch = async (url, init) => {
+    calls.push({ url, init });
+    if (init.method === 'POST') {
+      return {
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({
+          result: null,
+          success: false,
+          errors: [{ message: 'DNS Validation Error: record already exists.' }],
+          messages: [],
+        }),
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({
+        result: [{ id: 'existing-record-id', content: '169.58.18.71' }],
+        success: true,
+        errors: [],
+        messages: [],
+      }),
+    };
+  };
+  const state = {};
+
+  const result = await syncDiff(
+    [{ status: 'A', file: 'domains/podcast-assistant.json', content: { record: { A: '169.58.18.71' } } }],
+    { zoneId: 'Z', fetchImpl: fakeFetch, sleep: async () => {}, state },
+  );
+
+  assert.deepEqual(result, { added: 1, modified: 0, deleted: 0 });
+  assert.equal(state['podcast-assistant'].id, 'existing-record-id');
+  assert.equal(state['podcast-assistant'].type, 'A');
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].init.method, 'POST');
+  assert.equal(calls[1].init.method, 'GET');
+  assert.match(calls[1].url, /type=A/);
+  assert.match(calls[1].url, /name=podcast-assistant\.made-in\.app/);
+});
+
+test('syncDiff: add duplicate fails clearly when lookup finds no record', async () => {
+  const fakeFetch = async (url, init) => {
+    if (init.method === 'POST') {
+      return {
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({
+          result: null,
+          success: false,
+          errors: [{ message: 'DNS Validation Error: record already exists.' }],
+          messages: [],
+        }),
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ result: [], success: true, errors: [], messages: [] }),
+    };
+  };
+  const state = {};
+
+  await assert.rejects(
+    syncDiff(
+      [{ status: 'A', file: 'domains/podcast-assistant.json', content: { record: { A: '169.58.18.71' } } }],
+      { zoneId: 'Z', fetchImpl: fakeFetch, sleep: async () => {}, state },
+    ),
+    /Cloudflare create recovery failed for podcast-assistant\.made-in\.app: duplicate reported, but lookup found no existing A record\./,
+  );
+  assert.equal(state['podcast-assistant'], undefined);
+});
+
+test('syncDiff: add duplicate fails clearly when existing content differs', async () => {
+  const fakeFetch = async (url, init) => {
+    if (init.method === 'POST') {
+      return {
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({
+          result: null,
+          success: false,
+          errors: [{ message: 'DNS Validation Error: record already exists.' }],
+          messages: [],
+        }),
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({
+        result: [{ id: 'existing-record-id', content: '203.0.113.10' }],
+        success: true,
+        errors: [],
+        messages: [],
+      }),
+    };
+  };
+  const state = {};
+
+  await assert.rejects(
+    syncDiff(
+      [{ status: 'A', file: 'domains/podcast-assistant.json', content: { record: { A: '169.58.18.71' } } }],
+      { zoneId: 'Z', fetchImpl: fakeFetch, sleep: async () => {}, state },
+    ),
+    /Cloudflare create recovery failed for podcast-assistant\.made-in\.app: existing A record content differs from requested content\./,
+  );
+  assert.equal(state['podcast-assistant'], undefined);
+});
+
 test('syncDiff: modifies via lookup + PUT', async () => {
   const calls = [];
   const fakeFetch = async (url, init) => {

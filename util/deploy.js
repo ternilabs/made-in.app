@@ -107,6 +107,49 @@ export async function sendWithRetry(request, opts = {}) {
   throw err;
 }
 
+function fullRecordName(op) {
+  return `${op.name}${ZONE_SUFFIX}`;
+}
+
+function getCloudflareErrorMessages(res) {
+  const errors = Array.isArray(res.body?.errors) ? res.body.errors : [];
+  const messages = errors
+    .map((err) => err?.message)
+    .filter((message) => typeof message === 'string' && message.length > 0);
+  if (messages.length > 0) return messages.join('; ');
+  if (typeof res.body?.raw === 'string' && res.body.raw.length > 0) return res.body.raw;
+  return JSON.stringify(res.body);
+}
+
+function formatCloudflareError(action, op, res) {
+  return `Cloudflare ${action} failed for ${fullRecordName(op)}: ${res.status} ${getCloudflareErrorMessages(res)}`;
+}
+
+function getCreatedRecordId(res) {
+  if (!res.ok || res.body?.success === false) return null;
+  const id = res.body?.result?.id;
+  return typeof id === 'string' && id.length > 0 ? id : null;
+}
+
+function isDuplicateRecordError(res) {
+  if (res.ok) return false;
+  const message = getCloudflareErrorMessages(res).toLowerCase();
+  return message.includes('record') && (message.includes('already exists') || message.includes('exists already'));
+}
+
+async function recoverExistingAdd(op, zoneId, sendOpts) {
+  const lookup = buildLookupRequest(zoneId, op.type, op.name);
+  const res = await sendWithRetry(lookup, sendOpts);
+  const existing = Array.isArray(res.body?.result) ? res.body.result[0] : null;
+  if (!existing?.id) {
+    throw new Error(`Cloudflare create recovery failed for ${fullRecordName(op)}: duplicate reported, but lookup found no existing ${op.type} record.`);
+  }
+  if (existing.content !== op.content) {
+    throw new Error(`Cloudflare create recovery failed for ${fullRecordName(op)}: existing ${op.type} record content differs from requested content.`);
+  }
+  return existing.id;
+}
+
 export async function syncDiff(rawDiff, opts) {
   const { zoneId, fetchImpl = globalThis.fetch, sleep, state } = opts;
   const sendOpts = { fetchImpl, sleep, maxAttempts: 3 };
@@ -116,7 +159,14 @@ export async function syncDiff(rawDiff, opts) {
     if (op.kind === 'add') {
       const req = buildAddRequest(op, zoneId);
       const res = await sendWithRetry(req, sendOpts);
-      state[op.name] = { id: res.body.result.id, type: op.type };
+      let recordId = getCreatedRecordId(res);
+      if (!recordId && isDuplicateRecordError(res)) {
+        recordId = await recoverExistingAdd(op, zoneId, sendOpts);
+      }
+      if (!recordId) {
+        throw new Error(formatCloudflareError('create', op, res));
+      }
+      state[op.name] = { id: recordId, type: op.type };
       added++;
     } else if (op.kind === 'modify') {
       let recordId = state[op.name]?.id;
