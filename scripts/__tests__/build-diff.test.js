@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseDiff } from '../build-diff.mjs';
+import { buildRecoveryDiff, parseDiff } from '../build-diff.mjs';
 
 test('parseDiff: parses A status with valid JSON content', () => {
   const files = { 'domains/alice.json': JSON.stringify({ record: { A: '1.2.3.4' } }) };
@@ -49,4 +49,23 @@ test('parseDiff: skips empty lines', () => {
   const r = parseDiff(['', 'D\tdomains/a.json', ''], () => { throw new Error('readFile should not be called for D'); });
   assert.equal(r.length, 1);
   assert.equal(r[0].status, 'D');
+});
+
+test('buildRecoveryDiff: creates synthetic add diff for one existing domain', () => {
+  const files = {
+    'domains/podcast-assistant.json': JSON.stringify({ record: { A: '169.58.18.71' } }),
+  };
+  const r = buildRecoveryDiff('podcast-assistant', (p) => files[p]);
+  assert.deepEqual(r, [{
+    status: 'A',
+    file: 'domains/podcast-assistant.json',
+    content: { record: { A: '169.58.18.71' } },
+  }]);
+});
+
+test('buildRecoveryDiff: rejects invalid domain input before reading files', () => {
+  assert.throws(
+    () => buildRecoveryDiff('../secrets', () => { throw new Error('readFile should not be called'); }),
+    /Invalid recovery domain: Subdomain must contain only lowercase letters, digits, and hyphens\./,
+  );
 });

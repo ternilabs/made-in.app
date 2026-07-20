@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { validateSubdomainName } from '../util/validate.js';
 
 const defaultReadFile = (path) => readFileSync(path, 'utf8');
 
@@ -24,7 +25,26 @@ export function parseDiff(lines, readFile = defaultReadFile) {
   return out;
 }
 
-export function main() {
+export function buildRecoveryDiff(domain, readFile = defaultReadFile) {
+  const validation = validateSubdomainName(domain);
+  if (!validation.ok) {
+    throw new Error(`Invalid recovery domain: ${validation.errors.join(' ')}`);
+  }
+  const file = `domains/${domain}.json`;
+  let content;
+  try {
+    content = JSON.parse(readFile(file));
+  } catch (err) {
+    throw new Error(`Failed to read ${file}: ${err.message}`);
+  }
+  return [{ status: 'A', file, content }];
+}
+
+export function main(argv = process.argv) {
+  if (argv[2] === '--recover-domain') {
+    process.stdout.write(JSON.stringify(buildRecoveryDiff(argv[3] || '')));
+    return 0;
+  }
   const lines = readFileSync(0, 'utf8').split('\n').filter(Boolean);
   process.stdout.write(JSON.stringify(parseDiff(lines)));
   return 0;

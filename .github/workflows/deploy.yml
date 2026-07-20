@@ -7,6 +7,11 @@ on:
       - 'domains/*.json'
       - '!domains/.state.json'
   workflow_dispatch:
+    inputs:
+      recover_domain:
+        description: 'Optional subdomain name to replay as an add, for state recovery'
+        required: false
+        type: string
 
 jobs:
   sync:
@@ -25,10 +30,16 @@ jobs:
 
       - name: Compute diff
         id: diff
+        env:
+          RECOVER_DOMAIN: ${{ inputs.recover_domain || '' }}
         run: |
-          PREV=$(git rev-parse HEAD~1)
-          git diff --name-status $PREV HEAD -- 'domains/' > diff.txt
-          node scripts/build-diff.mjs < diff.txt > diff.json || (echo '[]' > diff.json && echo "::warning::build-diff.mjs failed, deploying empty diff" >&2)
+          if [ -n "$RECOVER_DOMAIN" ]; then
+            node scripts/build-diff.mjs --recover-domain "$RECOVER_DOMAIN" > diff.json
+          else
+            PREV=$(git rev-parse HEAD~1)
+            git diff --name-status $PREV HEAD -- 'domains/' > diff.txt
+            node scripts/build-diff.mjs < diff.txt > diff.json || (echo '[]' > diff.json && echo "::warning::build-diff.mjs failed, deploying empty diff" >&2)
+          fi
           cat diff.json
 
       - name: Sync DNS records
