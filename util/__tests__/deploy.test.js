@@ -121,6 +121,40 @@ test('syncDiff: adds a new subdomain via POST', async () => {
   assert.equal(state.alice.id, 'r-new');
 });
 
+test('syncDiff: add failure reports Cloudflare error instead of TypeError', async () => {
+  const calls = [];
+  const fakeFetch = async (url, init) => {
+    calls.push({ url, init });
+    return {
+      ok: false,
+      status: 403,
+      text: async () => JSON.stringify({
+        result: null,
+        success: false,
+        errors: [{ message: 'Authentication error: token lacks permission to edit DNS records.' }],
+        messages: [],
+      }),
+    };
+  };
+  const state = {};
+
+  await assert.rejects(
+    syncDiff(
+      [{ status: 'A', file: 'domains/podcast-assistant.json', content: { record: { A: '169.58.18.71' } } }],
+      { zoneId: 'Z', fetchImpl: fakeFetch, sleep: async () => {}, state },
+    ),
+    (err) => {
+      assert.match(err.message, /Cloudflare create failed for podcast-assistant\.made-in\.app/);
+      assert.match(err.message, /403/);
+      assert.match(err.message, /Authentication error/);
+      assert.doesNotMatch(err.message, /Cannot read properties of null/);
+      return true;
+    },
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(state['podcast-assistant'], undefined);
+});
+
 test('syncDiff: modifies via lookup + PUT', async () => {
   const calls = [];
   const fakeFetch = async (url, init) => {
