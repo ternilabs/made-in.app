@@ -3,5 +3,9 @@
   "podcast-assistant": {
     "id": "8789832d09f3b976721bf40b2c714fe7",
     "type": "A"
+  },
+  "weilo": {
+    "id": "f3491c5d67b1319ed468930fbb554424",
+    "type": "CNAME"
   }
 }
